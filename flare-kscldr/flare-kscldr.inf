@@ -1,0 +1,86 @@
+;
+; flare-kscldr.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=Sample ; TODO: edit Class
+ClassGuid={78A1C341-4539-11d3-B88D-00C04FAD5171} ; TODO: edit ClassGuid
+Provider=%ManufacturerName%
+CatalogFile=flare-kscldr.cat
+DriverVer= ; TODO: set DriverVer in stampinf property pages
+
+[DestinationDirs]
+DefaultDestDir = 12
+flare-kscldr_Device_CoInstaller_CopyFiles = 11
+
+; ================= Class section =====================
+
+[ClassInstall32]
+Addreg=SampleClassReg
+
+[SampleClassReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-5
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+flare-kscldr.sys  = 1,,
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%flare-kscldr.DeviceDesc%=flare-kscldr_Device, Root\flare-kscldr ; TODO: edit hw-id
+
+[flare-kscldr_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+flare-kscldr.sys
+
+;-------------- Service installation
+[flare-kscldr_Device.NT.Services]
+AddService = flare-kscldr,%SPSVCINST_ASSOCSERVICE%, flare-kscldr_Service_Inst
+
+; -------------- flare-kscldr driver install sections
+[flare-kscldr_Service_Inst]
+DisplayName    = %flare-kscldr.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\flare-kscldr.sys
+
+;
+;--- flare-kscldr_Device Coinstaller installation ------
+;
+
+[flare-kscldr_Device.NT.CoInstallers]
+AddReg=flare-kscldr_Device_CoInstaller_AddReg
+CopyFiles=flare-kscldr_Device_CoInstaller_CopyFiles
+
+[flare-kscldr_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[flare-kscldr_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[flare-kscldr_Device.NT.Wdf]
+KmdfService =  flare-kscldr, flare-kscldr_wdfsect
+[flare-kscldr_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+ClassName="Samples" ; TODO: edit ClassName
+DiskName = "flare-kscldr Installation Disk"
+flare-kscldr.DeviceDesc = "flare-kscldr Device"
+flare-kscldr.SVCDESC = "flare-kscldr Service"
